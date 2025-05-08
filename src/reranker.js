@@ -77,10 +77,10 @@ Your selection (comma-separated numbers):`;
         groqChoice.toUpperCase() === "NO_RELEVANT_ITEMS" ||
         groqChoice === ""
       ) {
-        finalRankedResults = [];
         console.log(
-          "[reranker][groq] Groq indicated no relevant items or returned empty string."
+          "[reranker][groq] Groq indicated no relevant items or returned empty. Using original top 10."
         );
+        // finalRankedResults is already set to candidateResults.slice(0, 10)
       } else {
         const selectedIndices = groqChoice
           .split(",")
@@ -90,33 +90,50 @@ Your selection (comma-separated numbers):`;
           );
 
         if (selectedIndices.length > 0) {
-          finalRankedResults = selectedIndices.map(
+          const groqSelectedItems = selectedIndices.map(
             (idx) => candidateResults[idx]
           );
+          let combinedResults = [...groqSelectedItems];
+          const addedIdents = new Set(
+            groqSelectedItems.map((item) => item.ident)
+          );
+
+          if (combinedResults.length < 10) {
+            for (const candidate of candidateResults) {
+              if (combinedResults.length >= 10) break;
+              if (!addedIdents.has(candidate.ident)) {
+                combinedResults.push(candidate);
+                addedIdents.add(candidate.ident);
+              }
+            }
+          }
+          finalRankedResults = combinedResults;
           console.log(
-            `[reranker][groq] Successfully refined ${finalRankedResults.length} results using Groq.`
+            `[reranker][groq] Successfully processed Groq selection. Total items: ${finalRankedResults.length}`
           );
         } else {
           console.warn(
-            "[reranker][groq] Groq did not return valid selections. Using original top 10 sort."
+            "[reranker][groq] Groq returned a non-empty choice but no valid indices could be parsed. Using original top 10."
           );
           // finalRankedResults is already set to candidateResults.slice(0, 10)
         }
       }
     } else {
       console.warn(
-        "[reranker][groq] Groq API call failed or returned empty/invalid response structure. Using original top 10 sort. Response body:",
+        "[reranker][groq] Groq API call failed or returned empty/invalid response structure. Using original top 10. Response body:",
         groqResponse.body
           ? JSON.stringify(groqResponse.body, null, 2)
           : "No body"
       );
+      // finalRankedResults is already set to candidateResults.slice(0, 10)
     }
   } catch (error) {
     console.error(
       "[reranker][groq] Error calling Groq API:",
       error.message,
-      "Using original top 10 sort."
+      "Using original top 10."
     );
+    // finalRankedResults is already set to candidateResults.slice(0, 10)
   }
   return finalRankedResults.slice(0, 10); // Ensure max 10 results
 };
