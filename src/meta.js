@@ -23,6 +23,8 @@ if (!tmdbApiKey) {
   console.warn(
     "Warning: TMDB API Key is not configured. Please set it in ../config/keys.js or as TMDB_API_KEY environment variable. API calls to TMDB may fail."
   );
+} else {
+  console.log("TMDB API Key found");
 }
 
 const needle = require("needle");
