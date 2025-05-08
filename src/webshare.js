@@ -3,6 +3,7 @@ const md5 = require("nano-md5");
 const sha1 = require("sha1");
 const formencode = require("form-urlencoded");
 const { filesize } = require("filesize");
+const { rerankWithGroq } = require("./reranker");
 
 const headers = {
   content_type: "application/x-www-form-urlencoded; charset=UTF-8",
@@ -134,7 +135,44 @@ const webshare = {
       }
     });
 
-    return results
+    // Rerank with Groq
+    let finalResultsToFormat = results; // Default to sorted results
+
+    if (results.length > 0) {
+      const primaryQuery =
+        showInfo.name ||
+        (queries.length > 0 ? queries[0] : "general video search");
+      // TODO: Move API key to a secure configuration/environment variable
+      const groqApiKey =
+        "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";
+      const candidateResultsForGroq = results.slice(0, 20); // Take top 20 for Groq
+
+      console.log(
+        `[webshare][search] Sending ${candidateResultsForGroq.length} candidates to reranker for query: ${primaryQuery}`
+      );
+      try {
+        // Pass the 'filesize' function itself to the reranker
+        finalResultsToFormat = await rerankWithGroq(
+          candidateResultsForGroq,
+          primaryQuery,
+          groqApiKey,
+          filesize
+        );
+        console.log(
+          `[webshare][search] Received ${finalResultsToFormat.length} results from reranker.`
+        );
+      } catch (error) {
+        // The reranker module should handle its own errors and fallbacks,
+        // but catch here in case of unexpected issues in the module itself.
+        console.error(
+          "[webshare][search] Critical error during reranking attempt. Falling back to original top 20, then slicing to 10.",
+          error.message
+        );
+        finalResultsToFormat = results.slice(0, 20); // Fallback to original sort (top 20)
+      }
+    }
+
+    return finalResultsToFormat
       .map((item) => ({
         ident: item.ident,
         description: item.name,
@@ -142,7 +180,7 @@ const webshare = {
           item.negVotes
         }`,
       }))
-      .slice(0, 20);
+      .slice(0, 10); // Ensure final output is max 10 items
   },
 
   addUrlToStreams: (streams, token) => {
