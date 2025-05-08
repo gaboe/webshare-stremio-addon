@@ -5,7 +5,7 @@ const { findShowInfo } = require("./meta");
 
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
-  id: "community.gabecko.webshare",
+  id: "community.gabecko.nicshare",
   version: "0.2.0",
   catalogs: [],
   resources: ["stream"],
