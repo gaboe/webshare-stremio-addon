@@ -10,7 +10,7 @@ const headers = {
 };
 
 const getQueries = (info) => {
-  console.log("[getQueries] info:", info);
+  console.log("[webshare][getQueries] info:", info);
   const names = Array.from(
     new Set([info.name, info.originalName].filter((n) => n))
   );
@@ -26,7 +26,7 @@ const getQueries = (info) => {
 };
 
 const search = async (query, token) => {
-  console.log("[search] query:", query, "token:", token);
+  console.log("[webshare][search] query:", query, "token:", token);
   const data = formencode({
     what: query,
     category: "video",
@@ -82,7 +82,7 @@ const search = async (query, token) => {
 };
 const webshare = {
   login: async (user, password) => {
-    console.log(`[login] Logging in user ${user}`);
+    console.log(`[webshare][login] Logging in user ${user}`);
     // get salt
     const saltResp = await needle(
       "https://webshare.cz/api/salt/",
@@ -117,7 +117,7 @@ const webshare = {
   // search localized names too
   // we could also combine multiple different queries to get better results
   search: async (showInfo, token) => {
-    console.log(`[search] showInfo: ${showInfo}, token: ${token}`);
+    console.log(`[webshare][search] showInfo: ${showInfo}, token: ${token}`);
     const queries = getQueries(showInfo);
     let results = await Promise.all(
       queries.map((query) => search(query, token))

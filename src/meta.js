@@ -21,16 +21,16 @@ if (!tmdbApiKey) {
 // Add a warning if the key is ultimately not found from any source
 if (!tmdbApiKey) {
   console.warn(
-    "Warning: TMDB API Key is not configured. Please set it in ../config/keys.js or as TMDB_API_KEY environment variable. API calls to TMDB may fail."
+    "[meta] TMDB API Key is not configured. Please set it in ../config/keys.js or as TMDB_API_KEY environment variable. API calls to TMDB may fail."
   );
 } else {
-  console.log("TMDB API Key found");
+  console.log("[meta] TMDB API Key found");
 }
 
 const needle = require("needle");
 
 const findShowInfo = async (type, id) => {
-  console.log("[findShowInfo] type:", type, "id:", id);
+  console.log("[meta][findShowInfo] type:", type, "id:", id);
   if (type == "movie") {
     return (
       (await findMovieTmdb(type, id)) || (await findMovieCinemeta(type, id))
@@ -43,7 +43,7 @@ const findShowInfo = async (type, id) => {
 };
 
 const findMovieCinemeta = async (type, id) => {
-  console.log("[findMovieCinemeta] type:", type, "id:", id);
+  console.log("[meta][findMovieCinemeta] type:", type, "id:", id);
   const resp = await needle(
     "get",
     "https://v3-cinemeta.strem.io/meta/" + type + "/" + id + ".json"
@@ -52,7 +52,7 @@ const findMovieCinemeta = async (type, id) => {
 };
 
 const findSeriesCinemeta = async (type, id) => {
-  console.log("[findSeriesCinemeta] type:", type, "id:", id);
+  console.log("[meta][findSeriesCinemeta] type:", type, "id:", id);
   const segments = id.split(":");
   if (segments.length == 3) {
     const [id, series, episode] = segments;
@@ -79,7 +79,7 @@ const tmbdHeaders = {
 
 const getFirstResult = (response) => {};
 const findMovieTmdb = async (type, id) => {
-  console.log("[findMovieTmdb] type:", type, "id:", id);
+  console.log("[meta][findMovieTmdb] type:", type, "id:", id);
   const resp = await needle(
     "get",
     `https://api.themoviedb.org/3/find/${id}?external_source=imdb_id&language=cs`,
@@ -99,7 +99,7 @@ const findMovieTmdb = async (type, id) => {
 };
 
 const findSeriesTmdb = async (type, id) => {
-  console.log("[findSeriesTmdb] type:", type, "id:", id);
+  console.log("[meta][findSeriesTmdb] type:", type, "id:", id);
   const segments = id.split(":");
   if (segments.length == 3) {
     const [id, series, episode] = segments;
