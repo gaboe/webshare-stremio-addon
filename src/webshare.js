@@ -143,8 +143,7 @@ const webshare = {
         showInfo.name ||
         (queries.length > 0 ? queries[0] : "general video search");
       // TODO: Move API key to a secure configuration/environment variable
-      const groqApiKey =
-        "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";
+      const groqApiKey = process.env.GROQ_API_KEY;
       const candidateResultsForGroq = results.slice(0, 20); // Take top 20 for Groq
 
       console.log(
